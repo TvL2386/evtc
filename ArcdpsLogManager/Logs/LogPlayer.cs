@@ -11,9 +11,10 @@ namespace GW2Scratch.ArcdpsLogManager.Logs
 		public EliteSpecialization EliteSpecialization { get; set; }
 		public string GuildGuid { get; set; }
 		public PlayerTag Tag { get; set; }
+		public long TargetDamage { get; set; }
 
 		public LogPlayer(string name, string accountName, int subgroup, Profession profession,
-			EliteSpecialization eliteSpecialization, string guildGuid)
+			EliteSpecialization eliteSpecialization, string guildGuid, long targetDamage)
 		{
 			Name = name;
 			AccountName = accountName;
@@ -21,6 +22,7 @@ namespace GW2Scratch.ArcdpsLogManager.Logs
 			Profession = profession;
 			EliteSpecialization = eliteSpecialization;
 			GuildGuid = guildGuid;
+			TargetDamage = targetDamage;
 		}
 	}
 }

@@ -11,6 +11,7 @@ namespace GW2Scratch.EVTCAnalytics.Statistics.PlayerDataParts
 		public Player Player { get; }
 		public int DownCount { get; }
 		public int DeathCount { get; }
+		public long TargetDamage { get; }
 
 		public IEnumerable<Skill> UsedSkills { get; }
 		public IEnumerable<SkillData> HealingSkills { get; }
@@ -47,7 +48,7 @@ namespace GW2Scratch.EVTCAnalytics.Statistics.PlayerDataParts
 			IEnumerable<Skill> usedSkills, IEnumerable<SkillData> healingSkills, IEnumerable<SkillData> utilitySkills,
 			IEnumerable<SkillData> eliteSkills, WeaponType landSet1Weapon1, WeaponType landSet1Weapon2,
 			WeaponType landSet2Weapon1, WeaponType landSet2Weapon2, IEnumerable<SkillData> land1WeaponSkills,
-			IEnumerable<SkillData> land2WeaponSkills)
+			IEnumerable<SkillData> land2WeaponSkills, long targetDamage)
 		{
 			Player = player;
 			DownCount = downCount;
@@ -63,6 +64,7 @@ namespace GW2Scratch.EVTCAnalytics.Statistics.PlayerDataParts
 			HealingSkills = healingSkills?.ToArray();
 			UtilitySkills = utilitySkills?.ToArray();
 			EliteSkills = eliteSkills?.ToArray();
+			TargetDamage = targetDamage;
 		}
 	}
 }

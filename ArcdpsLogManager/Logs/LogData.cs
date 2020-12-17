@@ -196,7 +196,7 @@ namespace GW2Scratch.ArcdpsLogManager.Logs
 				var tagEvents = log.Events.OfType<AgentTagEvent>().Where(x => x.Id != 0 && x.Agent is Player);
 				Players = analyzer.GetPlayers().Where(x => x.Identified).Select(p =>
 					new LogPlayer(p.Name, p.AccountName, p.Subgroup, p.Profession, p.EliteSpecialization,
-						GetGuildGuid(p.GuildGuid))
+						GetGuildGuid(p.GuildGuid), analyzer.GetPlayerData().Where(pd => pd.Player.Equals(p)).Single().TargetDamage)
 					{
 						Tag = tagEvents.Any(e => e.Agent == p) ? PlayerTag.Commander : PlayerTag.None
 					}

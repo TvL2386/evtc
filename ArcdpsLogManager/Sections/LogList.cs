@@ -229,6 +229,25 @@ namespace GW2Scratch.ArcdpsLogManager.Sections
 				}
 			});
 
+			var targetDpsColumn = new GridColumn()
+			{
+				HeaderText = "Target DPS",
+				DataCell = new TextBoxCell
+				{
+					Binding = new DelegateBinding<LogData, string>(x =>
+					{
+						double targetDps = 0;
+						var targetDamage = x.Players.Where(p => p.AccountName.Equals(x.PointOfView.AccountName)).Single()?.TargetDamage;
+						if(targetDamage != null)
+						{
+							targetDps = (double)targetDamage / x.EncounterDuration.TotalSeconds;
+						}
+
+						return Math.Round(targetDps/1000, 1).ToString() + "k";
+					})
+				}
+			};
+			gridView.Columns.Add(targetDpsColumn);
 
 			var compositionCell = new DrawableCell();
 			compositionCell.Paint += (sender, args) =>

@@ -150,6 +150,13 @@ namespace GW2Scratch.EVTCAnalytics
 			var downCounts = players.ToDictionary(x => x, x => 0);
 			var usedSkills = players.ToDictionary(x => x, x => new HashSet<Skill>());
 
+			var targetDamage = players.ToDictionary(x => x, x => (long) 0);
+			var damageData = LogAnalyzer.GetDamageData(players, log.Events);
+			foreach(var player in players)
+			{
+				targetDamage[player] = damageData[player];
+			}
+
 			foreach (var deadEvent in log.Events.OfType<AgentDeadEvent>().Where(x => x.Agent is Player))
 			{
 				var player = (Player) deadEvent.Agent;
@@ -327,7 +334,7 @@ namespace GW2Scratch.EVTCAnalytics
 
 				var data = new PlayerData(player, downCounts[player], deathCounts[player], rotation, usedSkills[player],
 					healingSkills, utilitySkills, eliteSkills, land1Weapon1, land1Weapon2, land2Weapon1, land2Weapon2,
-					land1WeaponSkills, land2WeaponSkills);
+					land1WeaponSkills, land2WeaponSkills, targetDamage[player]);
 
 				playerData.Add(data);
 			}
@@ -512,5 +519,78 @@ namespace GW2Scratch.EVTCAnalytics
 
 			return damageDataByAttacker;
 		}
+
+		private static Dictionary<Agent, long> GetDamageData(IEnumerable<Player> players, IEnumerable<Event> events)
+		{
+			var physicalBossDamages = events.OfType<PhysicalDamageEvent>();
+			var conditionBossDamages = events.OfType<BuffDamageEvent>();
+			var skillCastStarts = events.OfType<StartSkillCastEvent>();
+
+			var damageDataByAttacker = new Dictionary<Agent, long>();
+
+			void EnsureDamageDataExists(Agent agent)
+			{
+				if (!damageDataByAttacker.ContainsKey(agent))
+				{
+					damageDataByAttacker[agent] = 0;
+				}
+			}
+
+			void AddDamageData(Agent agent, long value)
+			{
+				EnsureDamageDataExists(agent);
+				damageDataByAttacker[agent] += value;
+			}
+
+			// Ensure all players are always in the damage data, even if they did no damage.
+			foreach (var player in players)
+			{
+				EnsureDamageDataExists(player);
+			}
+
+
+			foreach (var damageEvent in physicalBossDamages)
+			{
+				var attacker = damageEvent.Attacker;
+				var defender = damageEvent.Defender;
+
+				long damage = damageEvent.Damage;
+				if (attacker == null)
+				{
+					continue; // TODO: Save as unknown damage
+				}
+
+				var mainMaster = attacker;
+				while (mainMaster.Master != null)
+				{
+					mainMaster = mainMaster.Master;
+				}
+
+				AddDamageData(mainMaster, damage);
+			}
+
+			foreach (var damageEvent in conditionBossDamages)
+			{
+				var attacker = damageEvent.Attacker;
+				var defender = damageEvent.Defender;
+
+				long damage = damageEvent.Damage;
+				if (attacker == null)
+				{
+					continue; // TODO: Save as unknown damage
+				}
+
+				var mainMaster = attacker;
+				while (mainMaster.Master != null)
+				{
+					mainMaster = mainMaster.Master;
+				}
+
+				AddDamageData(mainMaster, damage);
+			}
+
+			return damageDataByAttacker;
+		}
+
 	}
 }
