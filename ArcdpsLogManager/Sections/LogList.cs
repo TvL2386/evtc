@@ -347,6 +347,16 @@ namespace GW2Scratch.ArcdpsLogManager.Sections
 					dateColumn, (x, y) => x.EncounterStartTime.CompareTo(y.EncounterStartTime)
 				},
 				{
+					targetDpsColumn, (x, y) => {
+						var targetDamageX = x.Players.Where(p => p.AccountName.Equals(x.PointOfView.AccountName)).Single()?.TargetDamage ?? 0;
+						var targetDamageY = y.Players.Where(p => p.AccountName.Equals(y.PointOfView.AccountName)).Single()?.TargetDamage ?? 0;
+
+						var targetDpsX = (double)targetDamageX / x.EncounterDuration.TotalSeconds;
+						var targetDpsY = (double)targetDamageY / y.EncounterDuration.TotalSeconds;
+						return targetDpsX.CompareTo(targetDpsY);
+					}
+				},
+				{
 					resultColumn, (x, y) =>
 					{
 						if (x.EncounterResult == EncounterResult.Failure && y.EncounterResult == EncounterResult.Failure)
